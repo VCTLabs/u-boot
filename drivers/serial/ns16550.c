@@ -50,6 +50,14 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif
 #endif
 
+#ifdef CONFIG_ARCH_JZ47XX
+#undef UART_FCRVAL
+/* Ingenic JZ47xx SoCs require that a 'UART Module Enable' bit be set */
+#define UART_FCR_UME		0x10
+#define UART_FCRVAL (UART_FCR_FIFO_EN | UART_FCR_RXSR |	\
+		     UART_FCR_TXSR | UART_FCR_UME)
+#endif
+
 #ifndef CONFIG_SYS_NS16550_IER
 #define CONFIG_SYS_NS16550_IER  0x00
 #endif /* CONFIG_SYS_NS16550_IER */
