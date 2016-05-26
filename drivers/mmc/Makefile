@@ -10,7 +10,9 @@ obj-$(CONFIG_GENERIC_MMC) += mmc-uclass.o
 endif
 
 ifndef CONFIG_BLK
+ifndef CONFIG_MMC_TINY
 obj-$(CONFIG_GENERIC_MMC) += mmc_legacy.o
+endif
 endif
 
 obj-$(CONFIG_ARM_PL180_MMCI) += arm_pl180_mmci.o

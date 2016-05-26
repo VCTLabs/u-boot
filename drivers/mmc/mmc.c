@@ -22,6 +22,29 @@
 #include "mmc_private.h"
 
 #ifndef CONFIG_DM_MMC_OPS
+#if defined(CONFIG_MMC_TINY)
+static struct mmc mmc_static;
+struct mmc *find_mmc_device(int dev_num)
+{
+	return &mmc_static;
+}
+
+void mmc_do_preinit(void)
+{
+	struct mmc *m = &mmc_static;
+#ifdef CONFIG_FSL_ESDHC_ADAPTER_IDENT
+	mmc_set_preinit(m, 1);
+#endif
+	if (m->preinit)
+		mmc_start_init(m);
+}
+
+struct blk_desc *mmc_get_blk_desc(struct mmc *mmc)
+{
+	return &mmc->block_dev;
+}
+#endif
+
 __weak int board_mmc_getwp(struct mmc *mmc)
 {
 	return -1;
@@ -250,7 +273,11 @@ ulong mmc_bread(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt,
 	if (!mmc)
 		return 0;
 
+#ifdef CONFIG_MMC_TINY
+	err = mmc_switch_part(mmc, block_dev->hwpart);
+#else
 	err = blk_dselect_hwpart(block_dev, block_dev->hwpart);
+#endif
 	if (err < 0)
 		return 0;
 
@@ -1509,6 +1536,143 @@ static int mmc_send_if_cond(struct mmc *mmc)
 	return 0;
 }
 
+#ifdef CONFIG_BLK
+int mmc_bind(struct udevice *dev, struct mmc *mmc, const struct mmc_config *cfg)
+{
+	struct blk_desc *bdesc;
+	struct udevice *bdev;
+	int ret;
+
+	ret = blk_create_devicef(dev, "mmc_blk", "blk", IF_TYPE_MMC, -1, 512,
+				 0, &bdev);
+	if (ret) {
+		debug("Cannot create block device\n");
+		return ret;
+	}
+	bdesc = dev_get_uclass_platdata(bdev);
+	mmc->cfg = cfg;
+	mmc->priv = dev;
+
+	/* the following chunk was from mmc_register() */
+
+	/* Setup dsr related values */
+	mmc->dsr_imp = 0;
+	mmc->dsr = 0xffffffff;
+	/* Setup the universal parts of the block interface just once */
+	bdesc->removable = 1;
+
+	/* setup initial part type */
+	bdesc->part_type = cfg->part_type;
+	mmc->dev = dev;
+
+	return 0;
+}
+
+int mmc_unbind(struct udevice *dev)
+{
+	struct udevice *bdev;
+
+	device_find_first_child(dev, &bdev);
+	if (bdev) {
+		device_remove(bdev);
+		device_unbind(bdev);
+	}
+
+	return 0;
+}
+
+#elif defined(CONFIG_MMC_TINY)
+static struct mmc mmc_static = {
+	.dsr_imp		= 0,
+	.dsr			= 0xffffffff,
+	.block_dev = {
+		.if_type	= IF_TYPE_MMC,
+		.removable	= 1,
+		.devnum		= 0,
+		.block_read	= mmc_bread,
+		.block_write	= mmc_bwrite,
+		.block_erase	= mmc_berase,
+		.part_type	= 0,
+	},
+};
+
+struct mmc *mmc_create(const struct mmc_config *cfg, void *priv)
+{
+	struct mmc *mmc = &mmc_static;
+
+	mmc->cfg = cfg;
+	mmc->priv = priv;
+
+	return mmc;
+}
+
+void mmc_destroy(struct mmc *mmc)
+{
+}
+#else
+struct mmc *mmc_create(const struct mmc_config *cfg, void *priv)
+{
+	struct blk_desc *bdesc;
+	struct mmc *mmc;
+
+	/* quick validation */
+	if (cfg == NULL || cfg->ops == NULL || cfg->ops->send_cmd == NULL ||
+			cfg->f_min == 0 || cfg->f_max == 0 || cfg->b_max == 0)
+		return NULL;
+
+	mmc = calloc(1, sizeof(*mmc));
+	if (mmc == NULL)
+		return NULL;
+
+	mmc->cfg = cfg;
+	mmc->priv = priv;
+
+	/* the following chunk was mmc_register() */
+
+	/* Setup dsr related values */
+	mmc->dsr_imp = 0;
+	mmc->dsr = 0xffffffff;
+	/* Setup the universal parts of the block interface just once */
+	bdesc = mmc_get_blk_desc(mmc);
+	bdesc->if_type = IF_TYPE_MMC;
+	bdesc->removable = 1;
+	bdesc->devnum = mmc_get_next_devnum();
+	bdesc->block_read = mmc_bread;
+	bdesc->block_write = mmc_bwrite;
+	bdesc->block_erase = mmc_berase;
+
+	/* setup initial part type */
+	bdesc->part_type = mmc->cfg->part_type;
+	mmc_list_add(mmc);
+
+	return mmc;
+}
+
+void mmc_destroy(struct mmc *mmc)
+{
+	/* only freeing memory for now */
+	free(mmc);
+}
+#endif
+
+#ifndef CONFIG_BLK
+static int mmc_get_dev(int dev, struct blk_desc **descp)
+{
+	struct mmc *mmc = find_mmc_device(dev);
+	int ret;
+
+	if (!mmc)
+		return -ENODEV;
+	ret = mmc_init(mmc);
+	if (ret)
+		return ret;
+
+	*descp = &mmc->block_dev;
+
+	return 0;
+}
+#endif
+
 /* board-specific MMC power initializations. */
 __weak void board_mmc_power_init(void)
 {
@@ -1701,7 +1865,9 @@ int mmc_initialize(bd_t *bis)
 	initialized = 1;
 
 #ifndef CONFIG_BLK
+#ifndef CONFIG_MMC_TINY
 	mmc_list_init();
+#endif
 #endif
 	ret = mmc_probe(bis);
 	if (ret)
