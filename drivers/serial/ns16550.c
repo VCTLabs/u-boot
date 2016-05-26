@@ -362,11 +362,13 @@ int ns16550_serial_probe(struct udevice *dev)
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 enum {
 	PORT_NS16550 = 0,
+	PORT_JZ4780,
 };
 
 int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 {
 	struct ns16550_platdata *plat = dev->platdata;
+	const u32 port_type = dev_get_driver_data(dev);
 	fdt_addr_t addr;
 
 	/* try Processor Local Bus device first */
@@ -422,6 +424,10 @@ int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 	}
 
 	plat->fcr = UART_FCRVAL;
+	if (port_type == PORT_JZ4780) {
+		plat->fcr |= UART_FCR_UME;
+		plat->reg_shift = 2;
+	}
 
 	return 0;
 }
@@ -444,6 +450,7 @@ const struct dm_serial_ops ns16550_serial_ops = {
 static const struct udevice_id ns16550_serial_ids[] = {
 	{ .compatible = "ns16550",		.data = PORT_NS16550 },
 	{ .compatible = "ns16550a",		.data = PORT_NS16550 },
+	{ .compatible = "ingenic,jz4780-uart",	.data = PORT_JZ4780  },
 	{ .compatible = "nvidia,tegra20-uart",	.data = PORT_NS16550 },
 	{ .compatible = "snps,dw-apb-uart",	.data = PORT_NS16550 },
 	{ .compatible = "ti,omap2-uart",	.data = PORT_NS16550 },
