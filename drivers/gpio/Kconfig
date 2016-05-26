@@ -196,6 +196,13 @@ config DM_PCA953X
 	  Now, max 24 bits chips and PCA953X compatible chips are
 	  supported
 
+config JZ47XX_GPIO
+	bool "Ingenic JZ47xx GPIO driver"
+	depends on ARCH_JZ47XX
+	default y
+	help
+	  Supports GPIO access on Ingenic JZ47xx SoCs.
+
 config MPC85XX_GPIO
 	bool "Freescale MPC85XX GPIO driver"
 	depends on DM_GPIO
@@ -221,4 +228,5 @@ config MPC85XX_GPIO
 
 	  The driver has been tested on MPC85XX, but it is likely that other
 	  PowerQUICC III devices will work as well.
+
 endmenu
