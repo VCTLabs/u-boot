@@ -7,6 +7,7 @@ dtb-$(CONFIG_TARGET_AP143) += ap143.dtb
 dtb-$(CONFIG_TARGET_MALTA) += mti,malta.dtb
 dtb-$(CONFIG_TARGET_PIC32MZDASK) += pic32mzda_sk.dtb
 dtb-$(CONFIG_BOARD_TPLINK_WDR4300) += tplink_wdr4300.dtb
+dtb-$(CONFIG_TARGET_JZ4780_CI20) += ci20.dtb
 
 targets += $(dtb-y)
 
