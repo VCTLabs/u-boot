@@ -202,6 +202,7 @@ dtb-$(CONFIG_MACH_SUN6I) += \
 dtb-$(CONFIG_MACH_SUN7I) += \
 	sun7i-a20-ainol-aw1.dtb \
 	sun7i-a20-bananapi.dtb \
+	sun7i-a20-bananapi-r1.dtb \
 	sun7i-a20-bananapro.dtb \
 	sun7i-a20-cubieboard2.dtb \
 	sun7i-a20-cubietruck.dtb \
@@ -222,7 +223,6 @@ dtb-$(CONFIG_MACH_SUN7I) += \
 	sun7i-a20-pcduino3.dtb \
 	sun7i-a20-pcduino3-nano.dtb \
 	sun7i-a20-primo73.dtb \
-	sun7i-a20-sinovoip-bpi-r1.dtb \
 	sun7i-a20-wexler-tab7200.dtb \
 	sun7i-a20-wits-pro-a20-dkt.dtb \
 	sun7i-a20-yones-toptech-bd1078.dtb
