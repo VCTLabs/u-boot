@@ -43,10 +43,12 @@
 
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 
-/* Cache Configuration */
-#define CONFIG_SYS_DCACHE_SIZE		0x8000
-#define CONFIG_SYS_ICACHE_SIZE		0x8000
-#define CONFIG_SYS_CACHELINE_SIZE	32
+/* Cache Configuration
+   Use default MIPS cacahe values (CONFIG_SYS_CACHE_SIZE_AUTO=y)
+     #define CONFIG_SYS_DCACHE_SIZE		0x8000
+     #define CONFIG_SYS_ICACHE_SIZE		0x8000
+     #define CONFIG_SYS_CACHELINE_SIZE		32
+*/
 
 /* Enable JTAG support */
 #define CONFIG_JTAG
@@ -88,7 +90,7 @@
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 /* Miscellaneous configuration options */
-#define CONFIG_BOOTDELAY		3
+/* #define CONFIG_BOOTDELAY		3 */
 #define CONFIG_SYS_BOOTM_LEN		(64 << 20)
 #define CONFIG_BOOTARGS			"console=ttyS0,115200 rw rootwait"
 

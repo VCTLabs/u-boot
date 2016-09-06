@@ -15,8 +15,10 @@
 /*
  * CONFIG_SYS_CACHELINE_SIZE is still used in various drivers primarily for
  * DMA buffer alignment. Satisfy those drivers by providing it as a synonym
- * of ARCH_DMA_MINALIGN for now.
+ * of ARCH_DMA_MINALIGN if not already defined.
  */
+#ifndef CONFIG_SYS_CACHELINE_SIZE
 #define CONFIG_SYS_CACHELINE_SIZE ARCH_DMA_MINALIGN
+#endif
 
 #endif /* __MIPS_CACHE_H__ */
