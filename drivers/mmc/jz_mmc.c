@@ -221,7 +221,7 @@ static int jz_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		mdelay(1);
 	writel(stat, priv->regs + MSC_IREG);
 	if (stat & MSC_IREG_TIME_OUT_RES)
-		return TIMEOUT;
+		return -ETIMEDOUT;
 
 	if (cmd->resp_type & MMC_RSP_PRESENT) {
 		/* read the response */
@@ -261,9 +261,9 @@ static int jz_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			stat = readl(priv->regs + MSC_STAT);
 
 			if (stat & MSC_STAT_TIME_OUT_READ)
-				return TIMEOUT;
+				return -ETIMEDOUT;
 			if (stat & MSC_STAT_CRC_READ_ERROR)
-				return COMM_ERR;
+				return -EILSEQ;
 			if (stat & MSC_STAT_DATA_FIFO_EMPTY) {
 				udelay(10);
 				continue;
