@@ -335,7 +335,7 @@ static const struct mmc_ops jz_msc_ops = {
 	.init		= jz_mmc_core_init,
 };
 
-#ifdef CONFIG_MMC_TINY
+#ifdef CONFIG_SPL_MMC_TINY
 static struct jz_mmc_priv jz_mmc_priv_static = {
 	.cfg = {
 		.name = "MSC",

@@ -22,7 +22,7 @@
 #include "mmc_private.h"
 
 #ifndef CONFIG_DM_MMC_OPS
-#if defined(CONFIG_MMC_TINY)
+#if CONFIG_IS_ENABLED(SPL_MMC_TINY)
 static struct mmc mmc_static;
 struct mmc *find_mmc_device(int dev_num)
 {
@@ -273,11 +273,11 @@ ulong mmc_bread(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt,
 	if (!mmc)
 		return 0;
 
-#ifdef CONFIG_MMC_TINY
-	err = mmc_switch_part(mmc, block_dev->hwpart);
-#else
-	err = blk_dselect_hwpart(block_dev, block_dev->hwpart);
-#endif
+	if (CONFIG_IS_ENABLED(SPL_MMC_TINY))
+		err = mmc_switch_part(mmc, block_dev->hwpart);
+	else
+		err = blk_dselect_hwpart(block_dev, block_dev->hwpart);
+
 	if (err < 0)
 		return 0;
 
@@ -1581,7 +1581,7 @@ int mmc_unbind(struct udevice *dev)
 	return 0;
 }
 
-#elif defined(CONFIG_MMC_TINY)
+#elif CONFIG_IS_ENABLED(SPL_MMC_TINY)
 static struct mmc mmc_static = {
 	.dsr_imp		= 0,
 	.dsr			= 0xffffffff,
@@ -1865,7 +1865,7 @@ int mmc_initialize(bd_t *bis)
 	initialized = 1;
 
 #ifndef CONFIG_BLK
-#ifndef CONFIG_MMC_TINY
+#if !CONFIG_IS_ENABLED(SPL_MMC_TINY)
 	mmc_list_init();
 #endif
 #endif

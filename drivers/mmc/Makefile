@@ -10,11 +10,14 @@ obj-$(CONFIG_GENERIC_MMC) += mmc-uclass.o
 endif
 
 ifndef CONFIG_BLK
-ifndef CONFIG_MMC_TINY
+ifdef CONFIG_SPL_BUILD
+ifndef CONFIG_SPL_MMC_TINY
+obj-$(CONFIG_GENERIC_MMC) += mmc_legacy.o
+endif
+else
 obj-$(CONFIG_GENERIC_MMC) += mmc_legacy.o
 endif
 endif
-
 obj-$(CONFIG_ARM_PL180_MMCI) += arm_pl180_mmci.o
 obj-$(CONFIG_ATMEL_SDHCI) += atmel_sdhci.o
 obj-$(CONFIG_BCM2835_SDHCI) += bcm2835_sdhci.o
