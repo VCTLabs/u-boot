@@ -37,6 +37,7 @@
 #define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOTFILE		"fitImage"
 #define CONFIG_BOOTARGS		"console=ttyS0," __stringify(CONFIG_BAUDRATE)
+#define CONFIG_PREBOOT          "run try_bootscript"
 #define CONFIG_BOOTCOMMAND	"run mmcload; run mmcboot"
 #define CONFIG_LOADADDR		0x01000000
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
@@ -55,16 +56,27 @@
 	"ramboot=setenv bootargs " CONFIG_BOOTARGS ";" \
 		"bootm ${loadaddr} - ${fdt_addr}\0" \
 	"bootimage=zImage\0" \
-	"fdt_addr=100\0" \
+	"fdt_addr=0x07000000\0" \
 	"fdtimage=socfpga.dtb\0" \
+	"fpgadata=0x2000000\0" \
+	"script=boot.scr\0" \
 	"bootm ${loadaddr} - ${fdt_addr}\0" \
 	"mmcroot=/dev/mmcblk0p2\0" \
-	"mmcboot=setenv bootargs " CONFIG_BOOTARGS \
-		" root=${mmcroot} rw rootwait;" \
-		"bootz ${loadaddr} - ${fdt_addr}\0" \
 	"mmcload=mmc rescan;" \
 		"load mmc 0:1 ${loadaddr} ${bootimage};" \
 		"load mmc 0:1 ${fdt_addr} ${fdtimage}\0" \
+	"mmcboot=setenv bootargs " CONFIG_BOOTARGS \
+		" root=${mmcroot} rw rootwait;" \
+		"bootz ${loadaddr} - ${fdt_addr}\0" \
+	"try_bootscript="\
+		"mmc rescan;" \
+		"if test -e mmc 0:1 ${script} ; then " \
+			"if load mmc 0:1 ${loadaddr} ${script};" \
+			"then ; " \
+				"echo Running bootscript from mmc ...; " \
+				"source ${loadaddr};" \
+			"fi ; " \
+		"fi\0"
 
 /* The rest of the configuration is shared */
 #include <configs/socfpga_common.h>
