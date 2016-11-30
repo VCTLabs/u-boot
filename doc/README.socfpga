@@ -95,12 +95,21 @@ I) Rebuilding the MCVEVK Quartus project
 	 6.5.4) Click Generate
 	 6.5.5) Click Exit
 
-Now the necessary files are generated. And U-Boot can be used
-to generate the SPL header files. For this, please use the
-following script:
+Now the necessary files are generated. And U-Boot can be used to generate 
+the SPL header files. For this, please use the following script from the
+u-boot source tree::
 
-./arch/arm/mach-socfpga/qts-filter.sh cyclone5 \
-	/path/to/quartus/project /path/to/output/qts/
+  $ ./arch/arm/mach-socfpga/qts-filter.sh [soc_type] [input_qts_dir] [input_bsp_dir] [output_dir]
+  
+  Process QTS-generated headers into U-Boot compatible ones.
+  
+    soc_type      - Type of SoC, either 'cyclone5' or 'arria5'.
+    input_qts_dir - Directory with compiled Quartus project
+                    and containing the Quartus project file (QPF).
+    input_bsp_dir - Directory with generated bsp containing
+                    the settings.bsp file.
+    output_dir    - Directory to store the U-Boot compatible
+                    headers.
 
 This will generate the following 4 files:
 
@@ -109,8 +118,10 @@ pinmux_config.h
 pll_config.h
 sdram_config.h
 
-These files need to be copied into "qts" directory in the board
-directory. Here the example for the DENX MCVEVK:
+These files need to be copied into "qts" directory in the board directory
+(see output arg of script command above).
+
+Here the example for the DENX MCVEVK:
 
 $ ll board/denx/mcvevk/qts/
 total 44
@@ -121,5 +132,5 @@ drwxrwxr-x 3 stefan stefan 4096 Okt 21 13:06 ../
 -rw-rw-r-- 1 stefan stefan 3192 Okt 20 07:07 pll_config.h
 -rw-rw-r-- 1 stefan stefan 9031 Okt 20 07:07 sdram_config.h
 
-Now you board is ready for full mainline support including
+Now your board is ready for full mainline support including
 U-Boot SPL. The Preloader will not be needed any more.
