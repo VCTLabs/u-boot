@@ -7,7 +7,6 @@ This README is about U-Boot and SPL support for Altera's ARM Cortex-A9MPCore
 based SOCFPGA. To know more about the hardware itself, please refer to
 www.altera.com.
 
-
 --------------------------------------------
 socfpga_dw_mmc
 --------------------------------------------
@@ -51,3 +50,76 @@ the card
 #define CONFIG_SOCFPGA_DWMMC_BUS_HZ	50000000
 -> The clock rate to controller. Do note the controller have a wrapper which
 divide the clock from PLL by 4.
+
+-------------------------------------------------------------------------
+Generating the header files for SPL intergration as a replacement for the
+Preloader
+-------------------------------------------------------------------------
+This text assumes the use of Quartus 14.0.200
+
+I) Rebuilding the MCVEVK Quartus project
+----------------------------------------
+ 1) Navigate to DENX_MCV_reference_* directory
+ 2) Run Quartus II
+ 3) Open Project (Ctrl+J), select DENX_MCV_reference.qpf
+ 4) Run QSys [Tools->QSys]
+    4.1) In the Open dialog, select 'mcv_hps.qsys'
+    4.2) In the Open System dialog, wait until completion and press 'Close'
+    4.3) In the Qsys window, click on 'Generate HDL...' in bottom right corner
+         4.3.1) In the 'Generation' window, click 'Generate'
+	 4.3.2) In the 'Generate' dialog, wait until completion and click 'Close'
+    4.4) In the QSys window, click 'Finish'
+         4.4.1) In the 'Quartus II' pop up window, click 'OK'
+ 5) Back in Quartus II main window, do the following
+    5.1) Use Processing -> Start -> Start Analysis & Synthesis (Ctrl+K)
+    5.2) Use Processing -> Start Compilation (Ctrl+L)
+    ... have lunch, coffee, play games ...
+
+ [
+   NOTE: Steps 2-5 above can be also done using a convenience scripts
+         from the command line:
+	 $ ./qsys.sh && ./anal.sh && ./build.sh
+ ]
+
+ 6) Launch a separate terminal window
+    6.1) Change directory to 'software/spl_bsp'
+    6.2) Export path to embedded command shell and friends
+         $ export PATH=/work/DENX/Altera/Quartus/14.0/embedded/:$PATH
+    6.3) Start embedded command shell (ECS)
+         $ embedded_command_shell.sh
+    6.4) Prepare BSP by launching the BSP editor from ECS
+         => bsp-editor
+    6.5) In BSP editor
+         6.5.1) Use File -> Open
+	 6.5.2) Select 'settings.bsp' file
+	 6.5.4) Click Generate
+	 6.5.5) Click Exit
+
+Now the necessary files are generated. And U-Boot can be used
+to generate the SPL header files. For this, please use the
+following script:
+
+./arch/arm/mach-socfpga/qts-filter.sh cyclone5 \
+	/path/to/quartus/project /path/to/output/qts/
+
+This will generate the following 4 files:
+
+iocsr_config.h
+pinmux_config.h
+pll_config.h
+sdram_config.h
+
+These files need to be copied into "qts" directory in the board
+directory. Here the example for the DENX MCVEVK:
+
+$ ll board/denx/mcvevk/qts/
+total 44
+drwxrwxr-x 2 stefan stefan 4096 Okt 20 07:07 ./
+drwxrwxr-x 3 stefan stefan 4096 Okt 21 13:06 ../
+-rw-rw-r-- 1 stefan stefan 8826 Okt 20 07:07 iocsr_config.h
+-rw-rw-r-- 1 stefan stefan 4398 Okt 20 07:07 pinmux_config.h
+-rw-rw-r-- 1 stefan stefan 3192 Okt 20 07:07 pll_config.h
+-rw-rw-r-- 1 stefan stefan 9031 Okt 20 07:07 sdram_config.h
+
+Now you board is ready for full mainline support including
+U-Boot SPL. The Preloader will not be needed any more.
