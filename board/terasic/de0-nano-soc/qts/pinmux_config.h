@@ -1,13 +1,12 @@
 /*
  * Altera SoCFPGA PinMux configuration
  *
- * SPDX-License-Identifier:    BSD-3-Clause
+ * SPDX-License-Identifier:	BSD-3-Clause
  */
 
 #ifndef __SOCFPGA_PINMUX_CONFIG_H__
 #define __SOCFPGA_PINMUX_CONFIG_H__
 
-/* pin MUX configuration data */
 const u8 sys_mgr_init_table[] = {
 	0, /* EMACIO0 */
 	2, /* EMACIO1 */
@@ -88,12 +87,12 @@ const u8 sys_mgr_init_table[] = {
 	2, /* MIXED1IO12 */
 	2, /* MIXED1IO13 */
 	0, /* MIXED1IO14 */
-	0, /* MIXED1IO15 */
-	0, /* MIXED1IO16 */
-	0, /* MIXED1IO17 */
-	0, /* MIXED1IO18 */
-	0, /* MIXED1IO19 */
-	0, /* MIXED1IO20 */
+	3, /* MIXED1IO15 */
+	3, /* MIXED1IO16 */
+	3, /* MIXED1IO17 */
+	3, /* MIXED1IO18 */
+	3, /* MIXED1IO19 */
+	3, /* MIXED1IO20 */
 	0, /* MIXED1IO21 */
 	0, /* MIXED2IO0 */
 	0, /* MIXED2IO1 */
