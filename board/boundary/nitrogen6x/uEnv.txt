@@ -5,7 +5,7 @@ fdtfile=imx6q-nitrogen6_max.dtb
 
 console=ttymxc1,115200n8
 optargs=console=tty0
-video=
+video=HDMI-A-1:1024x768@60e
 
 mmcroot=/dev/mmcblk2p2 ro
 
