@@ -1,0 +1,13 @@
+In its current state, Altera (now Intel) hybrid FPGA boards have very little
+boot configuration support (mainly extlinux.conf).  This branch adds some
+commits for RCN-style uEnv.txt configuration and deployment, as well as
+automatic loading of an FPGA firmware blob if found in the /boot directory.
+
+See the Linux on ARM `DE0 Nano wiki page`_ for manual deployment steps:
+
+.. _DE0 Nano wiki page: https://eewiki.net/display/linuxonarm/DE0-Nano-SoC+Kit
+
+See also the uEnv.txt.sample file for basic configuration; if you don't have
+a firmware blob file, just comment that line out.  The default kernel cmdline
+should be sufficient for booting, just add any additional parameters you need
+to the "optargs" variable.

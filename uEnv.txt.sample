@@ -1,0 +1,11 @@
+# kernel version, same as /lib/modules/<dir_name>
+uname_r=4.9.20-socfpga-r1
+
+# DT blob filename, looks in /boot/dtbs/$uname_r/
+fdt_file=socfpga_cyclone5_de1_soc-audio.dtb
+
+# Firmware blob filename, looks in /boot/
+fpgafile=soc_system.rbf
+
+# use this to add anything else
+optargs=console=tty1 cma=16M verbose net.ifnames=0 elevator=noop
