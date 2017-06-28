@@ -38,6 +38,7 @@
 	"fdt_addr=0x07000000\0" \
 	"fdt_file=socfpga_cyclone5_de1_soc.dtb\0" \
 	"rdaddr=0x07080000\0" \
+	"fpgadata=0x2000000\0" \
 	"interface=mmc\0" \
 	"optargs=\0" \
 	"cmdline=\0" \
@@ -51,6 +52,9 @@
 		"rootfstype=${mmcrootfstype} " \
 		"${cmdline}\0" \
 	"loadimage=load ${interface} ${bootpart} ${loadaddr} ${bootdir}/${bootfile}\0" \
+	"loadfpga=load ${interface} ${bootpart} ${fpgadata} ${bootdir}/${fpga_file}; setenv fpgadatasize ${filesize}\0" \
+	"uploadfpga=fpga load 0 ${fpgadata} ${fpgadatasize}\0" \
+	"enablebridge=bridge enable\0" \
 	"loadrd=load ${interface} ${bootpart} ${rdaddr} ${bootdir}/${rdfile}; setenv rdsize ${filesize}\0" \
 	"loadfdt=echo loading ${fdtdir}/${fdt_file} ...;  load ${interface} ${bootpart} ${fdt_addr} ${fdtdir}/${fdt_file}\0" \
 	"mmcboot=${interface} dev ${mmcdev}; " \
@@ -78,6 +82,18 @@
 		"fi;\0" \
 	"uname_boot="\
 		"setenv bootdir /boot; " \
+		"if test -n ${fpgafile}; then " \
+			"setenv fpga_file ${fpgafile};" \
+			"if test -e ${devtype} ${bootpart} ${bootdir}/${fpga_file}; then " \
+				"echo loading ${bootdir}/${fpga_file} ...; "\
+				"run loadfpga;" \
+				"echo uploading to fpga ...; "\
+				"run uploadfpga;" \
+				"echo fpga loading complete ...; "\
+				"run enablebridge;" \
+				"echo fpga bridge enabled ...; "\
+			"fi;" \
+		"fi;" \
 		"setenv bootfile vmlinuz-${uname_r}; " \
 		"if test -e ${interface} ${bootpart} ${bootdir}/${bootfile}; then " \
 			"echo loading ${bootdir}/${bootfile} ...; "\
